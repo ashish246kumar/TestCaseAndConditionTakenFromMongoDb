@@ -1,0 +1,69 @@
+package com.policy.policyVerify.service.impl;
+
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import com.policy.model.entity.PolicyCondition;
+import com.policy.model.entity.Rule;
+import com.policy.policyVerify.repository.PolicyConditionRepository;
+
+
+class PolicyConditionServiceTest {
+
+	@Autowired
+	private MockMvc mockMvc;
+	
+	
+    
+	
+	
+	 PolicyConditionRepository policyConditionRepository;
+	 PolicyConditionService policyConditionService;
+	 PolicyCondition policyCondition;
+	 Rule rule;
+	@BeforeEach
+    void setUp() {
+		policyConditionRepository=mock(PolicyConditionRepository.class);
+		policyConditionService=new PolicyConditionService(policyConditionRepository);
+		 rule = new Rule(
+			    "customerNationality",
+			    "({'JIOCD', 'JIOML', 'JINML', 'JINCD', 'OGLDP'}.contains(#root['productId'])) and #root['customerNationality'] != 'Indian'",
+			    "PA-CF-001",
+			    "Nationality is other than Resident Indian"
+			);
+		 policyCondition=new PolicyCondition(
+				    "6628eb9d4dcc8b0525be4bae",
+				    "JIO",
+				    rule
+				);
+		 
+
+	}
+	@Test
+	void testFindPolicyConditionById() {
+		mock(PolicyCondition.class);
+        when(policyConditionRepository.findByProductId("JIO"))
+		.thenReturn(new ArrayList<PolicyCondition>(Collections.singleton(policyCondition)));
+		assertThat(policyConditionService.findPolicyConditionById("JIO").get(0).getProductId())
+		.isEqualTo(policyCondition.getProductId());
+		
+	}
+
+}

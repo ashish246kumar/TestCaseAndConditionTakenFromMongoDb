@@ -1,0 +1,5 @@
+package com.policy.policyVerify.config;
+
+public class PolicyConfig {
+
+}

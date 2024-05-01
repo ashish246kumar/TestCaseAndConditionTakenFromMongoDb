@@ -1,0 +1,25 @@
+package com.policy.policyVerify.util;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class PolicyResponseBuilderTest {
+	
+   private Map<String,String> map;
+	@BeforeEach
+	void setUp()  {
+		 map=new HashMap<>();
+			map.put("PA-CF-007","Max Tenor Norm not met");
+	}
+
+	@Test
+	void test() {
+		
+	}
+
+}

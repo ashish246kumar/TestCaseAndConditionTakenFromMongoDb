@@ -1,0 +1,30 @@
+package com.policy.policyVerify.repository;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.policy.model.entity.PolicyCondition;
+import com.policy.model.entity.Rule;
+
+class PolicyConditionRepositoryTest {
+
+	Rule rule;
+	PolicyCondition policyCondition;
+	@BeforeEach
+	void setUp() {
+		rule=Rule.builder().build();
+		 policyCondition=new PolicyCondition(
+				    "6628eb9d4dcc8b0525be4bae",
+				    "JIO",
+				    rule
+				);
+	}
+
+	@Test
+	void test() {
+		fail("Not yet implemented");
+	}
+
+}

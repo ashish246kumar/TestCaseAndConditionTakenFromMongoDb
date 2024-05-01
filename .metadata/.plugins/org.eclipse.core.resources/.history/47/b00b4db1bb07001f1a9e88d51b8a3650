@@ -1,0 +1,42 @@
+package com.policy.policyVerify.repository;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+
+import com.policy.model.entity.PolicyCondition;
+import com.policy.model.entity.Rule;
+
+@DataMongoTest
+class PolicyConditionRepositoryTest {
+
+	 @Autowired
+	 private PolicyConditionRepository policyConditionRepository;
+	Rule rule;
+	PolicyCondition policyCondition;
+	PolicyCondition policyCondition2;
+	@BeforeEach
+	void setUp() {
+		rule=Rule.builder().build();
+		 policyCondition=PolicyCondition.builder().id("6628eb9d4dcc8b0525be4bae").productId("JIO").rule(rule).build();
+		 policyCondition2=PolicyCondition.builder().id("5628eb9d4dcc8b0525be4bae").productId("JIO").rule(rule).build();
+		 policyConditionRepository.save(policyCondition);
+		 policyConditionRepository.save(policyCondition2);
+	}
+
+	@Test
+	void positiveTestFindByProductId() {
+		
+		List<PolicyCondition> l1=policyConditionRepository.findByProductId("JIO");
+		 assertThat(l1).hasSize(2);
+		 assertEquals()
+	}
+
+}

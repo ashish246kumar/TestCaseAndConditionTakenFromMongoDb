@@ -1,0 +1,128 @@
+package com.policy.policyVerify.controller;
+
+import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.policy.model.entity.AdditionalAddress;
+import com.policy.model.entity.Address;
+import com.policy.model.entity.CurrentAddress;
+import com.policy.model.entity.PolicyRequest;
+import com.policy.model.entity.PolicyResponse;
+import com.policy.policyVerify.handler.PolicyConditionException;
+import com.policy.policyVerify.service.impl.PolicyEngineRequestLogService;
+import com.policy.policyVerify.service.impl.PolicyRuleVerify;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.BDDMockito.*;
+
+
+@WebMvcTest(PolicyController.class)
+class PolicyControllerTest {
+	
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@MockBean
+	private PolicyRuleVerify policyRuleVerify;
+	
+	@MockBean
+	private PolicyEngineRequestLogService policyEngineRequestLogService;
+	
+	PolicyRequest policyRequest; 
+	
+	 @Autowired
+	    private ObjectMapper objectMapper;
+	 
+	 HashMap<String,String> map;
+	 
+	@BeforeEach
+	void setUp() {
+		Address address=new Address();
+		CurrentAddress currentAddress=new CurrentAddress("Delhi","546789");
+		AdditionalAddress addtionalAddress=new AdditionalAddress("Banglore","90001");
+		address.setCurrentAddress(currentAddress);
+		address.setAdditionalAddress(addtionalAddress);
+		
+		policyRequest=PolicyRequest.builder()
+				.productId("JIOCD")
+				.customerNationality("NIndian")
+				.employmentType("NSalaried")
+				.address(address)
+				.requestedLoanAmount((double)4000)
+				.productValue((double)11000)
+				.tenure(27)
+				.build();
+		
+		 map=new HashMap<>();
+		map.put("PA-CF-007","Max Tenor Norm not met");
+		map.put("PA-CF-001","Nationality is other than Resident Indian");
+		map.put("PA-CF-004","Min Loan Amount Norm not met");
+		map.put("PA-CF-002","Employment Type is other than Salaried or Self-employed");
+	}
+	
+
+	@Test
+	void testValidateApplicant() throws Exception {
+		
+		
+		
+		 PolicyResponse expectedResponse=PolicyResponse.builder()
+				 .leadId("JIOBDA")
+				 .productId("JIOCD")
+				 .response(map)
+				 .build();
+				 
+				 
+		when(policyRuleVerify.validatePolicy(anyString(),any(PolicyRequest.class)))
+				    .thenReturn(expectedResponse);
+      
+
+		mockMvc.perform(post("/api/v1/validate")
+				.param("id","JIO")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(policyRequest)))
+				.andExpect(status().isOk())
+				.andDo(print());
+		 verify(policyEngineRequestLogService).savePolicyRequestResponse(any(PolicyRequest.class),any(PolicyResponse.class));		
+		 
+		        
+
+	}
+	@Test
+	void testValidateApplicantNegativeScenario() throws Exception {
+		
+		
+		
+		 PolicyResponse expectedResponse=null;
+				 
+				 
+		when(policyRuleVerify.validatePolicy(anyString(),any(PolicyRequest.class)))
+				    .thenThrow(new PolicyConditionException("PollicyConditionList not Found"));
+      
+
+		mockMvc.perform(post("/api/v1/validate")
+				.param("id","JIO")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(policyRequest)))
+				.andExpect(status().isOk())
+				.andDo(print());
+//		 verify(policyEngineRequestLogService,never()).savePolicyRequestResponse(any(PolicyRequest.class),any(PolicyResponse.class));		
+		 
+		        
+
+	}
+	
+	  
+
+}
